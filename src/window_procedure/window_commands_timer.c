@@ -228,6 +228,15 @@ LRESULT CmdPomodoroCombo(HWND hwnd, WPARAM wp, LPARAM lp) {
     return 0;
 }
 
+LRESULT CmdPomodoroLockOnWork(HWND hwnd, WPARAM wp, LPARAM lp) {
+    (void)wp; (void)lp; (void)hwnd;
+    /* Toggle the lock on work end setting */
+    extern void WriteConfigPomodoroLockOnWorkEnd(BOOL lock_on_work_end);
+    BOOL newValue = !g_AppConfig.pomodoro.lock_on_work_end;
+    WriteConfigPomodoroLockOnWorkEnd(newValue);
+    return 0;
+}
+
 /* ============================================================================
  * Time Options Configuration
  * ============================================================================ */

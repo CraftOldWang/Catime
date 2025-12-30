@@ -54,6 +54,7 @@ LRESULT CmdPomodoroStart(HWND hwnd, WPARAM wp, LPARAM lp);
 LRESULT CmdPomodoroReset(HWND hwnd, WPARAM wp, LPARAM lp);
 LRESULT CmdPomodoroLoopCount(HWND hwnd, WPARAM wp, LPARAM lp);
 LRESULT CmdPomodoroCombo(HWND hwnd, WPARAM wp, LPARAM lp);
+LRESULT CmdPomodoroLockOnWork(HWND hwnd, WPARAM wp, LPARAM lp);
 
 /* Time options */
 LRESULT CmdModifyTimeOptions(HWND hwnd, WPARAM wp, LPARAM lp);

@@ -125,6 +125,15 @@ void WriteConfigPomodoroLoopCount(int loop_count) {
 
 
 /**
+ * @brief Write pomodoro lock on work end setting to config file
+ */
+void WriteConfigPomodoroLockOnWorkEnd(BOOL lock_on_work_end) {
+    g_AppConfig.pomodoro.lock_on_work_end = lock_on_work_end;
+    UpdateConfigBoolAtomic(INI_SECTION_POMODORO, "POMODORO_LOCK_ON_WORK_END", lock_on_work_end);
+}
+
+
+/**
  * @brief Write custom pomodoro time intervals to config
  */
 void WriteConfigPomodoroTimeOptions(int* times, int count) {

@@ -99,6 +99,11 @@ void BuildPomodoroMenu(HMENU hMenu) {
                 g_AppConfig.pomodoro.loop_count);
     AppendMenuW(hPomodoroMenu, MF_STRING, CLOCK_IDM_POMODORO_LOOP_COUNT, menuText);
 
+    /* Lock screen when work ends toggle */
+    AppendMenuW(hPomodoroMenu, MF_STRING | (g_AppConfig.pomodoro.lock_on_work_end ? MF_CHECKED : MF_UNCHECKED),
+                CLOCK_IDM_POMODORO_LOCK_ON_WORK,
+                GetLocalizedString(NULL, L"Lock Screen When Work Ends"));
+
     AppendMenuW(hPomodoroMenu, MF_SEPARATOR, 0, NULL);
 
     AppendMenuW(hPomodoroMenu, MF_STRING, CLOCK_IDM_POMODORO_COMBINATION,

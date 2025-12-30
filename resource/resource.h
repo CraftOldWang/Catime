@@ -241,6 +241,7 @@
 #define CLOCK_IDM_POMODORO_LOOP_COUNT 185 /**< Configure loop count */
 #define CLOCK_IDM_POMODORO_RESET 186     /**< Reset Pomodoro timer */
 #define CLOCK_IDM_POMODORO_COMBINATION 188 /**< Pomodoro combination settings */
+#define CLOCK_IDM_POMODORO_LOCK_ON_WORK 189 /**< Lock screen when work ends */
 
 /** @brief Pomodoro dialog identifiers */
 #define CLOCK_IDD_POMODORO_TIME_DIALOG 510  /**< Pomodoro time configuration dialog */

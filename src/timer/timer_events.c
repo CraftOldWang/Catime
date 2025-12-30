@@ -390,6 +390,18 @@ static BOOL HandlePomodoroCompletion(HWND hwnd) {
     ShowNotification(hwnd, completionMsg);
     PlayNotificationSound(hwnd);
 
+    /* Lock screen when work phase ends to remind user to take a break
+     * Work phases are at even indices (0, 2, 4...) in the times array
+     * Only lock if the feature is enabled in config */
+    if (g_AppConfig.pomodoro.lock_on_work_end) {
+        BOOL isWorkPhase = (completedIndex % 2 == 0);
+        if (isWorkPhase) {
+            if (!LockWorkStation()) {
+                LOG_WARNING("Failed to lock workstation after Pomodoro work phase (error: %lu)", GetLastError());
+            }
+        }
+    }
+
     // Seamless transition: Add new duration to the existing target end time
     // This ensures no time is lost during notification processing
     int next_duration_sec = pomodoro_initial_times[current_pomodoro_time_index];

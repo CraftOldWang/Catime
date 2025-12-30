@@ -150,6 +150,7 @@ typedef struct {
     int times[10];
     int times_count;
     int loop_count;
+    BOOL lock_on_work_end;  /**< Lock screen when work phase ends */
 } PomodoroConfig;
 
 /**

@@ -19,5 +19,7 @@ build/*
 .cursorrules
 .kiro
 
+cmake-*/
+
 # Project documentation
 CLAUDE.md

@@ -265,6 +265,10 @@ LRESULT HandleAppPomodoroChanged(HWND hwnd) {
     if (loopCount < 1) loopCount = 1;
     g_AppConfig.pomodoro.loop_count = loopCount;
     
+    /* Lock screen on work phase end */
+    g_AppConfig.pomodoro.lock_on_work_end = ReadConfigBool(
+        CFG_SECTION_POMODORO, "POMODORO_LOCK_ON_WORK_END", FALSE);
+    
     return 0;
 }
 

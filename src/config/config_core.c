@@ -33,7 +33,8 @@ AppConfig g_AppConfig = {
         .long_break = 0,
         .times = {0},
         .times_count = 0,
-        .loop_count = 1
+        .loop_count = 1,
+        .lock_on_work_end = FALSE
     },
     .notification = {
         .messages = {
