@@ -31,6 +31,7 @@ static int g_blockquoteCount = 0;
 static char g_pluginPath[MAX_PATH] = {0};
 static char g_pluginName[128] = {0};
 static int g_pluginIndex = -1;
+static char g_pluginHash[65] = {0};  /* SHA256 hash at dialog show time */
 
 /* Parent window handle for posting results */
 static HWND g_pluginSecurityParent = NULL;
@@ -80,6 +81,26 @@ void ClearPendingPluginInfo(void) {
     g_pluginPath[0] = '\0';
     g_pluginName[0] = '\0';
     g_pluginIndex = -1;
+    g_pluginHash[0] = '\0';
+}
+
+/**
+ * @brief Set the hash of plugin file at dialog show time
+ */
+void SetPendingPluginHash(const char* hash) {
+    if (hash && strlen(hash) == 64) {
+        strncpy(g_pluginHash, hash, sizeof(g_pluginHash) - 1);
+        g_pluginHash[sizeof(g_pluginHash) - 1] = '\0';
+    } else {
+        g_pluginHash[0] = '\0';
+    }
+}
+
+/**
+ * @brief Get the hash of plugin file at dialog show time
+ */
+const char* GetPendingPluginHash(void) {
+    return g_pluginHash;
 }
 
 /**
@@ -123,6 +144,7 @@ static INT_PTR CALLBACK PluginSecurityDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wP
             
             /* Auto-resize buttons based on text width */
             HDC hdc = GetDC(hwndDlg);
+            if (!hdc) return TRUE;
             HFONT hFont = (HFONT)SendMessage(hwndDlg, WM_GETFONT, 0, 0);
             HFONT hOldFont = (HFONT)SelectObject(hdc, hFont);
             
@@ -176,7 +198,7 @@ static INT_PTR CALLBACK PluginSecurityDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wP
             
             /* Build security message with localized strings */
             wchar_t messageWide[4096];
-            int written = swprintf(messageWide, 4096,
+            int written = _snwprintf_s(messageWide, 4096, _TRUNCATE,
                 L"<md>\n"
                 L"%s\n\n"
                 L"%s\n"

@@ -156,30 +156,32 @@ INT_PTR CALLBACK UpdateDlgProc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lPa
                     SetProp(hwndNotes, L"LinkCount", (HANDLE)(INT_PTR)g_notesLinkCount);
 
                     HDC hdc = GetDC(hwndNotes);
-                    HFONT hFont = (HFONT)SendMessage(hwndNotes, WM_GETFONT, 0, 0);
-                    if (!hFont) hFont = GetStockObject(DEFAULT_GUI_FONT);
-                    HFONT hOldFont = (HFONT)SelectObject(hdc, hFont);
+                    if (hdc) {
+                        HFONT hFont = (HFONT)SendMessage(hwndNotes, WM_GETFONT, 0, 0);
+                        if (!hFont) hFont = GetStockObject(DEFAULT_GUI_FONT);
+                        HFONT hOldFont = (HFONT)SelectObject(hdc, hFont);
 
-                    RECT rect;
-                    GetClientRect(hwndNotes, &rect);
-                    rect.left += 5;
-                    rect.top += 5;
-                    rect.right -= MODERN_SCROLLBAR_WIDTH + MODERN_SCROLLBAR_MARGIN + 5;
+                        RECT rect;
+                        GetClientRect(hwndNotes, &rect);
+                        rect.left += 5;
+                        rect.top += 5;
+                        rect.right -= MODERN_SCROLLBAR_WIDTH + MODERN_SCROLLBAR_MARGIN + 5;
 
-                    RECT drawRect = rect;
-                    g_textHeight = CalculateMarkdownTextHeight(hdc, g_notesDisplayText,
-                                                                g_notesHeadings, g_notesHeadingCount,
-                                                                g_notesStyles, g_notesStyleCount,
-                                                                g_notesListItems, g_notesListItemCount,
-                                                                g_notesBlockquotes, g_notesBlockquoteCount,
-                                                                drawRect);
+                        RECT drawRect = rect;
+                        g_textHeight = CalculateMarkdownTextHeight(hdc, g_notesDisplayText,
+                                                                    g_notesHeadings, g_notesHeadingCount,
+                                                                    g_notesStyles, g_notesStyleCount,
+                                                                    g_notesListItems, g_notesListItemCount,
+                                                                    g_notesBlockquotes, g_notesBlockquoteCount,
+                                                                    drawRect);
 
-                    SelectObject(hdc, hOldFont);
-                    ReleaseDC(hwndNotes, hdc);
+                        SelectObject(hdc, hOldFont);
+                        ReleaseDC(hwndNotes, hdc);
 
-                    int clientHeight = rect.bottom - rect.top;
-                    SetProp(hwndNotes, L"ScrollMax", (HANDLE)(INT_PTR)g_textHeight);
-                    SetProp(hwndNotes, L"ScrollPage", (HANDLE)(INT_PTR)clientHeight);
+                        int clientHeight = rect.bottom - rect.top;
+                        SetProp(hwndNotes, L"ScrollMax", (HANDLE)(INT_PTR)g_textHeight);
+                        SetProp(hwndNotes, L"ScrollPage", (HANDLE)(INT_PTR)clientHeight);
+                    }
                 }
 
                 SetDlgItemTextW(hwndDlg, IDYES, GetLocalizedString(NULL, L"Update Now"));
@@ -584,4 +586,48 @@ void TriggerUpdateDownload(HWND hwnd) {
         ShowExitMessageDialog(hwnd);
         PostQuitMessage(0);
     }
+}
+
+/* ============================================================================
+ * Thread-safe update result storage
+ * ============================================================================ */
+
+static char g_storedCurrentVersion[64] = {0};
+static char g_storedLatestVersion[64] = {0};
+static char g_storedDownloadUrl[512] = {0};
+static char g_storedReleaseNotes[16384] = {0};
+static BOOL g_storedHasUpdate = FALSE;
+
+void StoreUpdateResult(BOOL hasUpdate, const char* currentVersion, const char* latestVersion,
+                       const char* downloadUrl, const char* releaseNotes) {
+    g_storedHasUpdate = hasUpdate;
+    
+    if (currentVersion) {
+        strncpy(g_storedCurrentVersion, currentVersion, sizeof(g_storedCurrentVersion) - 1);
+        g_storedCurrentVersion[sizeof(g_storedCurrentVersion) - 1] = '\0';
+    }
+    
+    if (latestVersion) {
+        strncpy(g_storedLatestVersion, latestVersion, sizeof(g_storedLatestVersion) - 1);
+        g_storedLatestVersion[sizeof(g_storedLatestVersion) - 1] = '\0';
+    }
+    
+    if (downloadUrl) {
+        strncpy(g_storedDownloadUrl, downloadUrl, sizeof(g_storedDownloadUrl) - 1);
+        g_storedDownloadUrl[sizeof(g_storedDownloadUrl) - 1] = '\0';
+    }
+    
+    if (releaseNotes) {
+        strncpy(g_storedReleaseNotes, releaseNotes, sizeof(g_storedReleaseNotes) - 1);
+        g_storedReleaseNotes[sizeof(g_storedReleaseNotes) - 1] = '\0';
+    }
+}
+
+void ShowStoredUpdateDialog(HWND hwnd) {
+    ShowUpdateNotification(hwnd, g_storedCurrentVersion, g_storedLatestVersion,
+                          g_storedDownloadUrl, g_storedReleaseNotes);
+}
+
+void ShowStoredNoUpdateDialog(HWND hwnd) {
+    ShowNoUpdateDialog(hwnd, g_storedCurrentVersion);
 }

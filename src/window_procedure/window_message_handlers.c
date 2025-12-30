@@ -27,6 +27,7 @@
 #include "color/gradient.h"
 #include "markdown/markdown_interactive.h"
 #include "pomodoro.h"
+#include "log.h"
 #include <stdio.h>
 #include <windowsx.h>
 
@@ -418,7 +419,7 @@ LRESULT HandleDrawItem(HWND hwnd, WPARAM wp, LPARAM lp) {
 
     /* Draw sequence number on left side */
     wchar_t numStr[8];
-    _snwprintf(numStr, 8, L"%d", colorIndex + 1);
+    _snwprintf_s(numStr, 8, _TRUNCATE, L"%d", colorIndex + 1);
     RECT numRect = lpdis->rcItem;
     numRect.right = numRect.left + 26;
     SetBkMode(lpdis->hDC, TRANSPARENT);
@@ -496,6 +497,25 @@ LRESULT HandleDialogUpdate(HWND hwnd, WPARAM wp, LPARAM lp) {
         /* User chose to update - trigger download and exit */
         extern void TriggerUpdateDownload(HWND hwnd);
         TriggerUpdateDownload(hwnd);
+    }
+    return 0;
+}
+
+/**
+ * @brief Handle update check result from background thread
+ * @param wp 1 = update available, 0 = no update
+ * @param lp Reserved
+ */
+LRESULT HandleUpdateCheckResult(HWND hwnd, WPARAM wp, LPARAM lp) {
+    (void)lp;
+    if (wp == 1) {
+        /* Update available - show update dialog */
+        extern void ShowStoredUpdateDialog(HWND hwnd);
+        ShowStoredUpdateDialog(hwnd);
+    } else {
+        /* No update - show no update dialog */
+        extern void ShowStoredNoUpdateDialog(HWND hwnd);
+        ShowStoredNoUpdateDialog(hwnd);
     }
     return 0;
 }
@@ -612,6 +632,25 @@ LRESULT HandleDialogPluginSecurity(HWND hwnd, WPARAM wp, LPARAM lp) {
     InvalidateRect(hwnd, NULL, TRUE);
     
     ClearPendingPluginInfo();
+    
+    return 0;
+}
+
+/**
+ * @brief Handle plugin hot-reload request from background thread
+ * @param wp Plugin index to restart
+ * @param lp Reserved
+ */
+LRESULT HandlePluginHotReload(HWND hwnd, WPARAM wp, LPARAM lp) {
+    (void)hwnd;
+    (void)lp;
+    
+    extern BOOL PluginManager_RestartPlugin(int index);
+    
+    int pluginIndex = (int)wp;
+    LOG_INFO("[HotReload] Restarting plugin %d from main thread", pluginIndex);
+    
+    PluginManager_RestartPlugin(pluginIndex);
     
     return 0;
 }
